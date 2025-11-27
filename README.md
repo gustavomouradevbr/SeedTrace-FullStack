@@ -27,9 +27,11 @@ Antes de começar, certifique-se de ter as seguintes ferramentas instaladas:
 Se for trabalhar apenas nas telas ou integração visual:
 
 1. **Clone o repositório**:
+2. 
    ```bash
    git clone [https://github.com/gustavomouradevbr/SeedTrace-FullStack.git](https://github.com/gustavomouradevbr/SeedTrace-FullStack.git)
-````
+```
+
 
 2.  Abra a pasta raiz `SeedTrace-FullStack` no **VS Code**.
 3.  Navegue até a pasta `SeedTrace_frontend`.
@@ -122,6 +124,3 @@ Para evitar conflitos entre a equipa, sigam este processo:
 -----
 
 Desenvolvido pela equipe **SeedTrace**. 🚀
-
-```
-```
