@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SeedTrace - Relatórios</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet"
+    />
+</head>
+<body class="body-ipa-dashboard">
+
+    <aside class="ipa-sidebar">
+        <div class="ipa-sidebar-header">
+            <span>Painel de Gestão</span>
+        </div>
+
+        <nav class="ipa-nav">
+    <a href="dashboard-ipa.html">Estoque</a>
+    <a href="entregas-ipa.html">Entregas</a>
+    <a href="agricultores-ipa.html">Agricultores</a>
+    <a href="relatorios-ipa.html" class="active">Relatórios</a>
+</nav>
+
+        <div class="ipa-sidebar-footer">
+            <a href="#" id="btnSairIPA">Sair</a>
+        </div>
+    </aside>
+
+    <main class="ipa-main-content">
+        
+        <header class="ipa-main-header">
+            <h1>Relatórios</h1>
+        </header>
+
+        <div class="form-wrapper">
+            
+            <section class="form-section">
+                <div class="form-group-simples">
+                    <h2>Selecione o Relatório Desejado</h2>
+                </div>
+                
+                <div class="form-group-ipa">
+                    <label for="tipo-relatorio">Tipo de Relatório</label>
+                    <select id="tipo-relatorio">
+                        <option value="municipio" selected>Distribuição por Município</option>
+                        <option value="semente">Estoque por Semente</option>
+                        <option value="agricultor">Entregas por Agricultor</option>
+                    </select>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group-ipa">
+                        <label for="data-inicio">Data de Início</label>
+                        <input type="text" id="data-inicio" placeholder="dd/mm/aaaa">
+                    </div>
+                    <div class="form-group-ipa">
+                        <label for="data-fim">Data de Fim</label>
+                        <input type="text" id="data-fim" placeholder="dd/mm/aaaa">
+                    </div>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <button type="button" id="btnGerarRelatorio" class="button primary">Gerar e exportar</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

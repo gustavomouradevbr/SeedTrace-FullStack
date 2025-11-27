@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SeedTrace - Dashboard</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header class="dash-header">
+      <span class="greeting">Olá, João Ribeiro!</span>
+      <a href="#" id="btnSair" class="logout-link">Sair</a>
+    </header>
+
+    <main class="dash-container">
+      <div class="lote-list">
+        <div class="lote-card">
+          <div class="lote-info">
+            <h3>Lote de milho</h3>
+            <span class="status a-caminho">🚛 A caminho</span>
+          </div>
+          <div class="lote-action">
+            <a href="rastreamento-lote.html" class="button primary small"
+              >Rastrear entrega</a
+            >
+          </div>
+        </div>
+
+        <div class="lote-card">
+          <div class="lote-info">
+            <h3>Lote de Feijão</h3>
+            <span class="status entregue">✅ Entregue em 10/10/2025</span>
+          </div>
+          <div class="lote-action">
+            <a href="comprovante.html" class="button primary small"
+              >Ver comprovante</a
+            >
+          </div>
+        </div>
+
+        <div class="lote-card">
+          <div class="lote-info">
+            <h3>Lote de Sorgo</h3>
+            <span class="status aguardando">📦 Aguardando Envio</span>
+          </div>
+          <div class="lote-action">
+            <button class="button primary small">Rastrear entrega</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="help-footer">
+      <p>Precisa de ajuda? Fale com o IPA</p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

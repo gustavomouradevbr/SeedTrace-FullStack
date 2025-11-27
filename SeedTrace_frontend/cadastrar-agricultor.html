@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SeedTrace - Cadastrar Agricultor</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet"
+    />
+</head>
+<body class="body-ipa-dashboard">
+
+    <aside class="ipa-sidebar">
+        <div class="ipa-sidebar-header">
+            <span>Painel de Gestão</span>
+        </div>
+
+        <nav class="ipa-nav">
+    <a href="dashboard-ipa.html">Estoque</a>
+    <a href="entregas-ipa.html">Entregas</a>
+    <a href="agricultores-ipa.html" class="active">Agricultores</a>
+    <a href="relatorios-ipa.html">Relatórios</a>
+</nav>
+
+        <div class="ipa-sidebar-footer">
+            <a href="#" id="btnSairIPA">Sair</a>
+        </div>
+    </aside>
+
+    <main class="ipa-main-content">
+        
+        <header class="ipa-main-header form-header">
+            <h1>
+                <a href="#" id="btnVoltarAgricultores" class="back-link-ipa">&larr;</a> 
+                Cadastrar Novo Agricultor
+            </h1>
+        </header>
+
+        <div class="form-wrapper form-cadastro-simples">
+            
+            <div class="form-group-simples">
+                <h2>Nome Completo do Agricultor</h2>
+                <input type="text" placeholder="Digite o nome completo">
+            </div>
+
+            <div class="form-group-simples">
+                <h2>CPF</h2>
+                <input type="text" placeholder="Digite seu cpf">
+            </div>
+
+            <div class="form-group-simples">
+                <h2>Telefone / WhatsApp</h2>
+                <input type="text" placeholder="Digite o seu numero de contato">
+            </div>
+
+            <div class="form-group-simples">
+                <h2>Município</h2>
+                <select>
+                    <option value="" disabled selected>Selecione o seu município</option>
+                    <option value="garanhuns">Garanhuns</option>
+                    <option value="arcoverde">Arcoverde</option>
+                    <option value="pesqueira">Pesqueira</option>
+                </select>
+            </div>
+
+
+            <div class="form-actions">
+                <button type="button" id="btnCancelarCadastro" class="button button-cancel">cancelar</button>
+                <button type="button" id="btnSalvarCadastro" class="button primary">salvar</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

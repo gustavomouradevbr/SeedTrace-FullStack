@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SeedTrace - Planejar Entrega</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet"
+    />
+</head>
+<body class="body-ipa-dashboard">
+
+    <aside class="ipa-sidebar">
+        <div class="ipa-sidebar-header">
+            <span>Painel de Gestão</span>
+        </div>
+
+        <nav class="ipa-nav">
+    <a href="dashboard-ipa.html">Estoque</a>
+    <a href="entregas-ipa.html" class="active">Entregas</a>
+    <a href="agricultores-ipa.html">Agricultores</a>
+    <a href="relatorios-ipa.html">Relatórios</a>
+</nav>
+
+        <div class="ipa-sidebar-footer">
+            <a href="#" id="btnSairIPA">Sair</a>
+        </div>
+    </aside>
+
+    <main class="ipa-main-content">
+        
+        <header class="ipa-main-header form-header">
+            <h1>
+                <a href="#" id="btnVoltarEntregas" class="back-link-ipa">&larr;</a> 
+                Planejar Nova Entrega
+            </h1>
+        </header>
+
+        <div class="form-wrapper">
+            
+            <section class="form-section">
+                <h2>1. Destino da Entrega</h2>
+                <div class="form-grid">
+                    <div class="form-group-ipa">
+                        <label for="municipio">Município</label>
+                        <select id="municipio">
+                            <option value="" disabled selected>Selecione o município</option>
+                            <option value="garanhuns">Garanhuns</option>
+                            <option value="arcoverde">Arcoverde</option>
+                            <option value="pesqueira">Pesqueira</option>
+                        </select>
+                    </div>
+                    <div class="form-group-ipa">
+                        <label for="associacao">Agricultor ou Associação</label>
+                        <select id="associacao">
+                            <option value="" disabled selected>Selecione o destino</option>
+                            <option value="assoc1">Associação dos Agricultores de Garanhuns</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2>2. Itens da Entrega</h2>
+                <div class="form-grid">
+                    <div class="form-group-ipa">
+                        <label for="lote-semente">Lote de Semente</label>
+                        <select id="lote-semente">
+                            <option value="" disabled selected>Selecione o lote (Estoque: 12.450 kg)</option>
+                            <option value="lote1">Lote #F234 (Feijão)</option>
+                            <option value="lote2">Lote #M567 (Milho)</option>
+                        </select>
+                    </div>
+                    <div class="form-group-ipa">
+                        <label for="quantidade-entrega">Quantidade a Entregar (kg)</label>
+                        <input type="text" id="quantidade-entrega" placeholder="Ex: 25">
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2>3. Agendamento</h2>
+                <div class="form-grid">
+                    <div class="form-group-ipa">
+                        <label for="previsao-entrega">Previsão de Entrega</label>
+                        <input type="text" id="previsao-entrega" placeholder="dd/mm/aaaa">
+                    </div>
+                    <div class="form-group-ipa">
+                        <label for="tecnico">Técnico Responsável</label>
+                        <select id="tecnico">
+                            <option value="" disabled selected>Selecione o técnico</option>
+                            <option value="tec1">Maria Luiza Andrade</option>
+                            <option value="tec2">José Almeida</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <button type="button" id="btnCancelarPlanejamento" class="button button-cancel">cancelar</button>
+                <button type="button" id="btnSalvarPlanejamento" class="button primary">salvar</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

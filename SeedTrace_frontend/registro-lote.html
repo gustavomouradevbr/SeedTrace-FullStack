@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SeedTrace - Registro de Lote</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet"
+    />
+</head>
+<body class="body-ipa-dashboard">
+
+    <aside class="ipa-sidebar">
+        <div class="ipa-sidebar-header">
+            <span>Painel de Gestão</span>
+        </div>
+
+        <nav class="ipa-nav">
+    <a href="dashboard-ipa.html" class="active">Estoque</a>
+    <a href="entregas-ipa.html">Entregas</a>
+    <a href="agricultores-ipa.html">Agricultores</a>
+    <a href="relatorios-ipa.html">Relatórios</a>
+</nav>
+
+        <div class="ipa-sidebar-footer">
+            <a href="#" id="btnSairIPA">Sair</a>
+        </div>
+    </aside>
+
+    <main class="ipa-main-content">
+        
+        <header class="ipa-main-header form-header">
+            <h1>
+                <a href="#" id="btnVoltarEstoque" class="back-link-ipa">&larr;</a> 
+                Registro de Lote
+            </h1>
+        </header>
+
+        <div class="form-wrapper">
+            
+            <section class="form-section">
+                <h2>1. Informações da Semente</h2>
+                <div class="form-grid">
+                    <div class="form-group-ipa">
+                        <label for="tipo-semente">Tipo de Semente</label>
+                        <select id="tipo-semente">
+                            <option value="" disabled selected>Selecione o tipo</option>
+                            <option value="milho">Milho Híbrido AG 1051</option>
+                            <option value="feijao">Feijão Carioca BRS Estilo</option>
+                            <option value="sorgo">Sorgo Forrageiro BRS 506</option>
+                        </select>
+                    </div>
+                    <div class="form-group-ipa">
+                        <label for="quantidade">Quantidade (kg)</label>
+                        <input type="text" id="quantidade" placeholder="Ex: 2500">
+                    </div>
+                </div>
+            </section>
+
+            <section class="form-section">
+                <h2>2. Informações de Aquisição</h2>
+                <div class="form-grid">
+                    <div class="form-group-ipa">
+                        <label for="fornecedor">Fornecedor</label>
+                        <select id="fornecedor">
+                            <option value="" disabled selected>Selecione o fornecedor</option>
+                            <option value="coop1">Cooperativa Agrícola Raízes</option>
+                            <option value="coop2">Sementes Sertão Forte</option>
+                        </select>
+                    </div>
+                    <div class="form-group-ipa">
+                        <label for="nota-fiscal">Número da Nota Fiscal</label>
+                        <input type="text" id="nota-fiscal" placeholder="Ex: 000.123.456">
+                    </div>
+                    <div class="form-group-ipa">
+                        <label for="data-recebimento">Data de Recebimento</label>
+                        <input type="text" id="data-recebimento" placeholder="dd/mm/aaaa">
+                    </div>
+                    <div class="form-group-ipa">
+                        <label for="data-validade">Data de Validade (Opcional)</label>
+                        <input type="text" id="data-validade" placeholder="dd/mm/aaaa">
+                    </div>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <button type="button" id="btnCancelarRegistro" class="button button-cancel">cancelar</button>
+                <button type="button" id="btnSalvarRegistro" class="button primary">salvar</button>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

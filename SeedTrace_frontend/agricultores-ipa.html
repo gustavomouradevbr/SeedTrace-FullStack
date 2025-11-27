@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SeedTrace - Gestão de Agricultores</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet"
+    />
+</head>
+<body class="body-ipa-dashboard">
+
+    <aside class="ipa-sidebar">
+        <div class="ipa-sidebar-header">
+            <span>Painel de Gestão</span>
+        </div>
+
+       <nav class="ipa-nav">
+    <a href="dashboard-ipa.html">Estoque</a>
+    <a href="entregas-ipa.html">Entregas</a>
+    <a href="agricultores-ipa.html" class="active">Agricultores</a>
+    <a href="relatorios-ipa.html">Relatórios</a>
+</nav>
+
+        <div class="ipa-sidebar-footer">
+            <a href="#" id="btnSairIPA">Sair</a>
+        </div>
+    </aside>
+
+    <main class="ipa-main-content">
+        
+        <header class="ipa-main-header">
+            <h1>Gestão de Agricultores</h1>
+        </header>
+
+        <div class="main-toolbar">
+            <input type="text" class="search-bar" placeholder="🔎 Buscar por nome ou CPF...">
+            <button class="button primary" id="btnCadastrarProdutor">
+                Cadastrar Produtor
+            </button>
+        </div>
+
+        <div class="content-card-light">
+            <div class="entregas-table"> <div class="table-header">
+                    <div>Nome</div>
+                    <div>Município</div>
+                    <div>Último Recebimento</div>
+                    <div>Ações</div>
+                </div>
+                
+                <div class="table-row">
+                    <div>João Ribeiro da Silva</div>
+                    <div>Garanhuns</div>
+                    <div>10/10/2025 (Feijão)</div>
+                    <div><a href="#" class="action-link">Ver histórico</a></div>
+                </div>
+                <div class="table-row">
+                    <div>Maria das Dores Souza</div>
+                    <div>Arcoverde</div>
+                    <div>14/10/2025 (Milho)</div>
+                    <div><a href="#" class="action-link">Ver histórico</a></div>
+                </div>
+                <div class="table-row">
+                    <div>Diogo Victor quirino</div>
+                    <div>Pesqueira</div>
+                    <div><span class="status-text planejada">Aguardando</span></div>
+                    <div><a href="#" class="action-link">Ver histórico</a></div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

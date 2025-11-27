@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SeedTrace - Painel de Gestão</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="body-ipa-dashboard">
+    <aside class="ipa-sidebar">
+      <div class="ipa-sidebar-header">
+        <span>Painel de Gestão</span>
+      </div>
+
+      <nav class="ipa-nav">
+        <a href="dashboard-ipa.html" class="active">Estoque</a>
+        <a href="entregas-ipa.html">Entregas</a>
+        <a href="agricultores-ipa.html">Agricultores</a>
+        <a href="relatorios-ipa.html">Relatórios</a>
+      </nav>
+
+      <div class="ipa-sidebar-footer">
+        <a href="#" id="btnSairIPA">Sair</a>
+      </div>
+    </aside>
+
+    <main class="ipa-main-content">
+      <header class="ipa-main-header">
+        <h1>Visão Geral do Estoque</h1>
+        <button class="button primary" id="btnRegistrarLote">
+          Registrar Novo Lote
+        </button>
+      </header>
+
+      <section class="stats-grid">
+        <div class="stat-card">
+          <span class="label">Total em Estoque (kg)</span>
+          <span class="value">13.470</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Entregas em Andamento</span>
+          <span class="value">27</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Tipos de Semente com Estoque Baixo</span>
+          <span class="value yellow">2</span>
+        </div>
+        <div class="stat-card">
+          <span class="label">Lotes Atrasados</span>
+          <span class="value red">3</span>
+        </div>
+      </section>
+
+      <section class="inventory-section">
+        <header class="inventory-header">
+          <h2>Inventário Detalhado</h2>
+          <input
+            type="text"
+            id="search-sementes"
+            class="search-bar"
+            placeholder="🔎 Buscar por semente..."
+          />
+        </header>
+
+        <div class="inventory-table">
+          <div class="table-header">
+            <div>Tipo de Semente</div>
+            <div>Quantidade Disponível (kg)</div>
+            <div>Status</div>
+            <div>Nº de Lotes</div>
+            <div>Ações</div>
+          </div>
+
+          <!-- Container dinâmico: linhas serão inseridas via JS -->
+          <div id="lista-sementes"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
