@@ -43,19 +43,19 @@
       <section class="stats-grid">
         <div class="stat-card">
           <span class="label">Total em Estoque (kg)</span>
-          <span class="value">13.470</span>
+          <span class="value" id="total-estoque">0</span>
         </div>
         <div class="stat-card">
           <span class="label">Entregas em Andamento</span>
-          <span class="value">27</span>
+          <span class="value" id="total-entregas">0</span>
         </div>
         <div class="stat-card">
           <span class="label">Tipos de Semente com Estoque Baixo</span>
-          <span class="value yellow">2</span>
+          <span class="value yellow" id="total-baixo">0</span>
         </div>
         <div class="stat-card">
           <span class="label">Lotes Atrasados</span>
-          <span class="value red">3</span>
+          <span class="value red" id="total-atrasados">0</span>
         </div>
       </section>
 
@@ -79,7 +79,6 @@
             <div>Ações</div>
           </div>
 
-          <!-- Container dinâmico: linhas serão inseridas via JS -->
           <div id="lista-sementes"></div>
         </div>
       </section>

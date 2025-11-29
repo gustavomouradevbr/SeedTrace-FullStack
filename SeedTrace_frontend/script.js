@@ -1,4 +1,5 @@
-// Funções utilitárias para o dashboard
+const formatoNumero = new Intl.NumberFormat('pt-BR');
+
 function escapeHtml(text) {
     if (text === null || text === undefined) return '';
     return String(text)
@@ -7,6 +8,14 @@ function escapeHtml(text) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+function normalizarStatus(text = '') {
+    return text
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
 }
 
 async function carregarSementes() {
@@ -20,32 +29,44 @@ async function carregarSementes() {
         const data = await res.json();
 
         container.innerHTML = '';
-        const formato = new Intl.NumberFormat('pt-BR');
+
+        let totalEstoque = 0;
+        let totalBaixo = 0;
 
         data.forEach(s => {
-            const status = s.status ? String(s.status).trim() : '';
-            let statusClass = 'critico';
-            if (status.toLowerCase() === 'disponível' || status.toLowerCase() === 'disponivel') {
-                statusClass = 'disponivel';
-            } else if (status.toLowerCase() === 'estoque baixo') {
-                statusClass = 'baixo';
-            } else if (status.toLowerCase() === 'crítico' || status.toLowerCase() === 'critico' || status.toLowerCase() === 'indisponível' || status.toLowerCase() === 'indisponivel') {
-                statusClass = 'critico';
-            }
+            const quantidade = Number(s.quantidadeKg) || 0;
+            totalEstoque += quantidade;
 
-            const quantidade = (typeof s.quantidadeKg === 'number') ? formato.format(s.quantidadeKg) : escapeHtml(s.quantidadeKg);
+            const statusNormalizado = normalizarStatus(s.status);
+            let statusClass = 'disponivel';
+
+            if (statusNormalizado === 'estoque baixo') {
+                statusClass = 'baixo';
+                totalBaixo += 1;
+            } else if (['critico', 'indisponivel'].includes(statusNormalizado)) {
+                statusClass = 'critico';
+                totalBaixo += 1;
+            } else if (statusNormalizado === 'disponivel') {
+                statusClass = 'disponivel';
+            }
 
             const row = document.createElement('div');
             row.className = 'table-row';
             row.innerHTML = `
                 <div>${escapeHtml(s.nome)}</div>
-                <div>${quantidade}</div>
+                <div>${formatoNumero.format(quantidade)}</div>
                 <div><span class="status-pill ${statusClass}">${escapeHtml(s.status)}</span></div>
                 <div>${escapeHtml(s.numeroLotes)}</div>
                 <div><a href="#" class="action-link">Ver detalhes</a></div>
             `;
             container.appendChild(row);
         });
+
+        const totalEstoqueEl = document.getElementById('total-estoque');
+        if (totalEstoqueEl) totalEstoqueEl.textContent = formatoNumero.format(totalEstoque);
+
+        const totalBaixoEl = document.getElementById('total-baixo');
+        if (totalBaixoEl) totalBaixoEl.textContent = totalBaixo;
     } catch (err) {
         console.error('Erro ao carregar sementes:', err);
         container.innerHTML = '<div class="table-row"><div colspan="5">Erro ao carregar dados.</div></div>';
@@ -294,10 +315,45 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (btnSalvarRegistro) {
-        btnSalvarRegistro.addEventListener("click", () => {
-            console.log("Botão Salvar (Registro) clicado.");
-            alert("Lote salvo com sucesso! (Simulação)");
-            window.location.href = "dashboard-ipa.html";
+        btnSalvarRegistro.addEventListener("click", async (event) => {
+            event.preventDefault();
+
+            const nomeInput = document.getElementById('tipo-semente');
+            const quantidadeInput = document.getElementById('quantidade');
+
+            const nome = nomeInput ? nomeInput.value.trim() : '';
+            const quantidadeValor = quantidadeInput ? quantidadeInput.value.replace('.', '').replace(',', '.') : '';
+            const quantidadeKg = parseFloat(quantidadeValor);
+
+            if (!nome || Number.isNaN(quantidadeKg)) {
+                alert('Preencha o tipo de semente e a quantidade (em kg).');
+                return;
+            }
+
+            const payload = {
+                nome,
+                quantidadeKg,
+                status: 'Disponível',
+                numeroLotes: 1
+            };
+
+            try {
+                const response = await fetch('http://localhost:8080/api/sementes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Falha ao salvar a semente');
+
+                alert('Lote salvo com sucesso!');
+                window.location.href = 'dashboard-ipa.html';
+            } catch (error) {
+                console.error('Erro ao salvar registro:', error);
+                alert('Não foi possível salvar o lote. Tente novamente.');
+            }
         });
     }
 
