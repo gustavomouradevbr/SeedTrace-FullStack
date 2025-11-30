@@ -1,4 +1,5 @@
 const formatoNumero = new Intl.NumberFormat('pt-BR');
+const AGRICULTOR_NOME_KEY = 'nomeAgricultor';
 
 function escapeHtml(text) {
     if (text === null || text === undefined) return '';
@@ -79,6 +80,8 @@ async function carregarSementes() {
 // Garante que o script só rode depois que o HTML carregar
 document.addEventListener("DOMContentLoaded", () => {
 
+    atualizarSaudacaoAgricultor();
+
     // --- LÓGICA DA TELA: index.html ---
     
     const botaoAgricultor = document.getElementById("btnAgricultor");
@@ -104,10 +107,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnConsultar = document.getElementById("btnConsultar");
 
     if (btnConsultar) {
-        btnConsultar.addEventListener("click", (event) => {
-            event.preventDefault(); 
-            console.log("Botão Consultar clicado. Redirecionando...");
-            window.location.href = "confirmacao-agricultor.html";
+        btnConsultar.addEventListener("click", async (event) => {
+            event.preventDefault();
+            const cpfInput = document.getElementById("cpf");
+            const dataInput = document.getElementById("data-nascimento");
+            const cpf = cpfInput ? cpfInput.value.trim() : "";
+            const dataNascimento = dataInput ? dataInput.value.trim() : "";
+
+            if (!cpf || !dataNascimento) {
+                alert("Informe o CPF e a data de nascimento para continuar.");
+                return;
+            }
+
+            const dataISO = converterDataNascimentoParaISO(dataNascimento);
+            if (!dataISO) {
+                alert("Data de nascimento inválida. Use o formato DD/MM/AAAA.");
+                return;
+            }
+
+            try {
+                const params = new URLSearchParams({
+                    cpf,
+                    dataNascimento: dataISO
+                });
+                const resp = await fetch(`http://localhost:8080/api/agricultores/busca?${params.toString()}`);
+                if (resp.ok) {
+                    const agricultor = await resp.json();
+                    salvarNomeAgricultor(agricultor.nome || "");
+                    window.location.href = "confirmacao-agricultor.html";
+                } else if (resp.status === 404) {
+                    alert("CPF e data de nascimento não conferem. Verifique os dados informados.");
+                } else {
+                    throw new Error('Falha ao consultar cadastro');
+                }
+            } catch (error) {
+                console.error('Erro ao consultar agricultor:', error);
+                alert('Não foi possível verificar os dados. Tente novamente.');
+            }
         });
     }
 
@@ -127,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnNegar) {
         btnNegar.addEventListener("click", () => {
             console.log("Botão Negar clicado. Voltando...");
+            limparNomeAgricultor();
             window.location.href = "identificacao-agricultor.html";
         });
     }
@@ -142,6 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnSair.addEventListener("click", (event) => {
             event.preventDefault(); 
             console.log("Botão Sair clicado. Voltando para home...");
+            limparNomeAgricultor();
             window.location.href = "index.html";
         });
     }
@@ -198,6 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnSairRastreio.addEventListener("click", (event) => {
             event.preventDefault();
             console.log("Botão Sair (Rastreio) clicado. Voltando para home...");
+            limparNomeAgricultor();
             window.location.href = "index.html";
         });
     }
@@ -213,6 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnSairComprovante.addEventListener("click", (event) => {
             event.preventDefault();
             console.log("Botão Sair (Comprovante) clicado. Voltando para home...");
+            limparNomeAgricultor();
             window.location.href = "index.html";
         });
     }
@@ -235,6 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btnSairRastreioSorgo.addEventListener("click", (event) => {
             event.preventDefault();
             console.log("Botão Sair (Rastreio Sorgo) clicado. Voltando para home...");
+            limparNomeAgricultor();
             window.location.href = "index.html";
         });
     }
@@ -245,11 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnAcessarIPA = document.getElementById("btnAcessarIPA");
 
     if (btnAcessarIPA) {
-        btnAcessarIPA.addEventListener("click", (event) => {
-            event.preventDefault(); // Impede o formulário de recarregar
-            console.log("Botão Acessar (IPA) clicado. Redirecionando...");
-            window.location.href = "dashboard-ipa.html";
-        });
+        btnAcessarIPA.addEventListener("click", autenticarLoginIPA);
     }
 
 
@@ -480,6 +517,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+async function autenticarLoginIPA(event) {
+    event.preventDefault();
+
+    const button = event.currentTarget;
+    const cpfInput = document.getElementById('cpf-ipa');
+    const senhaInput = document.getElementById('senha-ipa');
+
+    const cpf = cpfInput ? cpfInput.value.trim() : '';
+    const senha = senhaInput ? senhaInput.value : '';
+
+    if (!cpf || !senha) {
+        alert('Preencha o CPF e a senha.');
+        return;
+    }
+
+    button.disabled = true;
+    button.classList.add('loading');
+
+    try {
+        const response = await fetch('http://localhost:8080/api/auth/login-ipa', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ cpf, senha })
+        });
+
+        if (!response.ok) {
+            throw new Error('Credenciais inválidas');
+        }
+
+        window.location.href = 'dashboard-ipa.html';
+    } catch (error) {
+        console.error('Erro no login:', error);
+        alert('CPF ou senha inválidos.');
+    } finally {
+        button.disabled = false;
+        button.classList.remove('loading');
+    }
+}
+
 async function deletarSemente(id) {
     if (!id) return;
     const confirmar = confirm('Tem certeza que deseja excluir esta semente?');
@@ -496,4 +574,51 @@ async function deletarSemente(id) {
         console.error('Erro ao excluir semente:', erro);
         alert('Não foi possível excluir a semente. Tente novamente.');
     }
+}
+
+function salvarNomeAgricultor(nome) {
+    if (!nome) return;
+    localStorage.setItem(AGRICULTOR_NOME_KEY, nome);
+}
+
+function limparNomeAgricultor() {
+    localStorage.removeItem(AGRICULTOR_NOME_KEY);
+}
+
+function atualizarSaudacaoAgricultor() {
+    const nome = localStorage.getItem(AGRICULTOR_NOME_KEY);
+    if (!nome) return;
+
+    if (window.location.pathname.endsWith('confirmacao-agricultor.html')) {
+        const titulo = document.querySelector('.welcome-card h1');
+        if (titulo) titulo.textContent = `Olá, ${nome}!`;
+    }
+
+    if (window.location.pathname.endsWith('dashboard-agricultor.html')) {
+        const saudacao = document.querySelector('.greeting');
+        if (saudacao) saudacao.textContent = `Olá, ${nome}!`;
+    }
+}
+
+function converterDataNascimentoParaISO(valor) {
+    if (!valor) return null;
+    const match = valor.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!match) return null;
+
+    const dia = parseInt(match[1], 10);
+    const mes = parseInt(match[2], 10);
+    const ano = parseInt(match[3], 10);
+
+    if (!dia || !mes || !ano) return null;
+
+    const data = new Date(Date.UTC(ano, mes - 1, dia));
+    const diaValido = data.getUTCDate() === dia;
+    const mesValido = data.getUTCMonth() + 1 === mes;
+    const anoValido = data.getUTCFullYear() === ano;
+
+    if (!diaValido || !mesValido || !anoValido) return null;
+
+    const diaStr = String(dia).padStart(2, '0');
+    const mesStr = String(mes).padStart(2, '0');
+    return `${ano}-${mesStr}-${diaStr}`;
 }

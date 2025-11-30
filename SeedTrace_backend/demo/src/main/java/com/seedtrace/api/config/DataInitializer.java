@@ -8,11 +8,13 @@ import com.seedtrace.api.model.Semente;
 import com.seedtrace.api.model.Entrega;
 import com.seedtrace.api.model.Agricultor;
 import com.seedtrace.api.model.Lote;
+import com.seedtrace.api.model.Funcionario;
 
 import com.seedtrace.api.repository.SementeRepository;
 import com.seedtrace.api.repository.EntregaRepository;
 import com.seedtrace.api.repository.AgricultorRepository;
 import com.seedtrace.api.repository.LoteRepository;
+import com.seedtrace.api.repository.FuncionarioRepository;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -21,15 +23,18 @@ public class DataInitializer implements CommandLineRunner {
     private final EntregaRepository entregaRepo;
     private final AgricultorRepository agricultorRepo;
     private final LoteRepository loteRepo;
+    private final FuncionarioRepository funcionarioRepo;
 
     public DataInitializer(SementeRepository sementeRepo,
                            EntregaRepository entregaRepo,
                            AgricultorRepository agricultorRepo,
-                           LoteRepository loteRepo) {
+                           LoteRepository loteRepo,
+                           FuncionarioRepository funcionarioRepo) {
         this.sementeRepo = sementeRepo;
         this.entregaRepo = entregaRepo;
         this.agricultorRepo = agricultorRepo;
         this.loteRepo = loteRepo;
+        this.funcionarioRepo = funcionarioRepo;
     }
 
     @Override
@@ -46,13 +51,28 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         if (agricultorRepo.count() == 0) {
-            agricultorRepo.save(new Agricultor("João Ribeiro", "Santa Maria", LocalDate.now().minusDays(30)));
-            agricultorRepo.save(new Agricultor("Maria Souza", "São Pedro", LocalDate.now().minusDays(15)));
+            agricultorRepo.save(new Agricultor(
+                "João Ribeiro",
+                "Santa Maria",
+                LocalDate.now().minusDays(30),
+                "111.111.111-11",
+                LocalDate.of(1985, 3, 14)));
+
+            agricultorRepo.save(new Agricultor(
+                "Maria Souza",
+                "São Pedro",
+                LocalDate.now().minusDays(15),
+                "222.222.222-22",
+                LocalDate.of(1990, 11, 2)));
         }
 
         if (loteRepo.count() == 0) {
             loteRepo.save(new Lote("Milho Híbrido AG 1051", 200.0, LocalDate.now().minusDays(10), "Fazenda Santa Clara", "João Ribeiro", "Semente de alta pureza"));
             loteRepo.save(new Lote("Sorgo Forrageiro X2", 150.0, LocalDate.now().minusDays(5), "Fazenda Verde", "Maria Souza", "Para forragem"));
+        }
+
+        if (funcionarioRepo.count() == 0) {
+            funcionarioRepo.save(new Funcionario("000.000.000-01", "123456", "Admin IPA"));
         }
     }
 }

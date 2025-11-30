@@ -1,14 +1,17 @@
 package com.seedtrace.api.controller;
 
-import com.seedtrace.api.model.Agricultor;
-import com.seedtrace.api.repository.AgricultorRepository;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
-
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import com.seedtrace.api.model.Agricultor;
+import com.seedtrace.api.repository.AgricultorRepository;
 
 @RestController
 @RequestMapping("/api/agricultores")
@@ -35,6 +38,16 @@ public class AgricultorController {
                   .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    // 2.1) Buscar por CPF + Data de Nascimento (GET /busca?cpf=...&dataNascimento=YYYY-MM-DD)
+    @GetMapping("/busca")
+    public ResponseEntity<Agricultor> buscarPorCpfEData(
+            @RequestParam String cpf,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataNascimento) {
+        return repo.findByCpfAndDataNascimento(cpf, dataNascimento)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
     // 3) Criar (POST) - retorna 201 Created com Location
     @PostMapping
     public ResponseEntity<Agricultor> criar(@RequestBody Agricultor novo) {
@@ -56,6 +69,8 @@ public class AgricultorController {
         a.setNome(atualizacao.getNome());
         a.setMunicipio(atualizacao.getMunicipio());
         a.setUltimoRecebimento(atualizacao.getUltimoRecebimento());
+        a.setCpf(atualizacao.getCpf());
+        a.setDataNascimento(atualizacao.getDataNascimento());
 
         Agricultor salvo = repo.save(a);
         return ResponseEntity.ok(salvo);
