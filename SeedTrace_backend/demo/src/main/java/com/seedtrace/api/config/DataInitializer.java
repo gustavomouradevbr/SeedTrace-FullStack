@@ -33,18 +33,26 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
-        sementeRepo.save(new Semente("Milho Híbrido AG 1051", 1200.0, "Disponível", 12));
-        sementeRepo.save(new Semente("Sorgo Forrageiro X2", 800.0, "Indisponível", 3));
-        sementeRepo.save(new Semente("Feijão Carioca SF-1", 400.0, "Disponível", 5));
+    public void run(String... args) {
+        if (sementeRepo.count() == 0) {
+            sementeRepo.save(new Semente("Milho Híbrido AG 1051", 1200.0, "Disponível", 12));
+            sementeRepo.save(new Semente("Sorgo Forrageiro X2", 800.0, "Indisponível", 3));
+            sementeRepo.save(new Semente("Feijão Carioca SF-1", 400.0, "Disponível", 5));
+        }
 
-        entregaRepo.save(new Entrega("Cooperativa Central", LocalDate.now().plusDays(7), "Pendente"));
-        entregaRepo.save(new Entrega("Armazém Regional", LocalDate.now().plusDays(2), "Em trânsito"));
+        if (entregaRepo.count() == 0) {
+            entregaRepo.save(new Entrega("Cooperativa Central", LocalDate.now().plusDays(7), "Pendente"));
+            entregaRepo.save(new Entrega("Armazém Regional", LocalDate.now().plusDays(2), "Em trânsito"));
+        }
 
-        agricultorRepo.save(new Agricultor("João Ribeiro", "Santa Maria", LocalDate.now().minusDays(30)));
-        agricultorRepo.save(new Agricultor("Maria Souza", "São Pedro", LocalDate.now().minusDays(15)));
+        if (agricultorRepo.count() == 0) {
+            agricultorRepo.save(new Agricultor("João Ribeiro", "Santa Maria", LocalDate.now().minusDays(30)));
+            agricultorRepo.save(new Agricultor("Maria Souza", "São Pedro", LocalDate.now().minusDays(15)));
+        }
 
-        loteRepo.save(new Lote("Milho Híbrido AG 1051", 200.0, LocalDate.now().minusDays(10), "Fazenda Santa Clara", "João Ribeiro", "Semente de alta pureza"));
-        loteRepo.save(new Lote("Sorgo Forrageiro X2", 150.0, LocalDate.now().minusDays(5), "Fazenda Verde", "Maria Souza", "Para forragem"));
+        if (loteRepo.count() == 0) {
+            loteRepo.save(new Lote("Milho Híbrido AG 1051", 200.0, LocalDate.now().minusDays(10), "Fazenda Santa Clara", "João Ribeiro", "Semente de alta pureza"));
+            loteRepo.save(new Lote("Sorgo Forrageiro X2", 150.0, LocalDate.now().minusDays(5), "Fazenda Verde", "Maria Souza", "Para forragem"));
+        }
     }
 }
