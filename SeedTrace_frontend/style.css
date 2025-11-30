@@ -105,6 +105,20 @@ a.button {
     background-color: #10b981;
 }
 
+.btn-delete {
+    margin-left: 8px;
+    background: none;
+    border: none;
+    color: #d14343;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0;
+}
+
+.btn-delete:hover {
+    color: #a00000;
+}
+
 /* Botão Cinza - Secundário */
 .button.secondary {
     background-color: #6b7280; /* Cinza escuro, como na imagem */

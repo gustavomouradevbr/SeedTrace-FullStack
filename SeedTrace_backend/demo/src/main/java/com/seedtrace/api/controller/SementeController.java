@@ -1,5 +1,6 @@
 package com.seedtrace.api.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import com.seedtrace.api.model.Semente;
@@ -17,4 +18,10 @@ public class SementeController {
 
     @PostMapping
     public Semente criar(@RequestBody Semente semente) { return repo.save(semente); }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        repo.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

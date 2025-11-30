@@ -57,7 +57,10 @@ async function carregarSementes() {
                 <div>${formatoNumero.format(quantidade)}</div>
                 <div><span class="status-pill ${statusClass}">${escapeHtml(s.status)}</span></div>
                 <div>${escapeHtml(s.numeroLotes)}</div>
-                <div><a href="#" class="action-link">Ver detalhes</a></div>
+                <div>
+                    <a href="#" class="action-link">Ver detalhes</a>
+                    <button class="btn-delete" type="button" onclick="deletarSemente(${s.id})" title="Excluir">🗑️</button>
+                </div>
             `;
             container.appendChild(row);
         });
@@ -322,7 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const quantidadeInput = document.getElementById('quantidade');
 
             const nome = nomeInput ? nomeInput.value.trim() : '';
-            const quantidadeValor = quantidadeInput ? quantidadeInput.value.replace('.', '').replace(',', '.') : '';
+            const quantidadeValor = quantidadeInput ? quantidadeInput.value : '';
             const quantidadeKg = parseFloat(quantidadeValor);
 
             if (!nome || Number.isNaN(quantidadeKg)) {
@@ -476,3 +479,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
+async function deletarSemente(id) {
+    if (!id) return;
+    const confirmar = confirm('Tem certeza que deseja excluir esta semente?');
+    if (!confirmar) return;
+
+    try {
+        const resposta = await fetch(`http://localhost:8080/api/sementes/${id}`, { method: 'DELETE' });
+        if (!resposta.ok && resposta.status !== 204) {
+            throw new Error('Falha ao excluir');
+        }
+        alert('Semente excluída com sucesso!');
+        carregarSementes();
+    } catch (erro) {
+        console.error('Erro ao excluir semente:', erro);
+        alert('Não foi possível excluir a semente. Tente novamente.');
+    }
+}
