@@ -19,6 +19,13 @@ function normalizarStatus(text = '') {
         .trim();
 }
 
+function classeStatusLote(text = '') {
+    const status = normalizarStatus(text);
+    if (status.includes('entreg')) return 'entregue';
+    if (status.includes('caminho') || status.includes('transito')) return 'a-caminho';
+    return 'aguardando';
+}
+
 async function carregarSementes() {
     const url = 'http://localhost:8080/api/sementes';
     const container = document.getElementById('lista-sementes');
@@ -93,6 +100,15 @@ function classeStatusEntrega(status = '') {
     return 'planejada';
 }
 
+function formatarDataSimples(valor) {
+    if (!valor) return '';
+    const data = new Date(valor);
+    if (Number.isNaN(data.getTime())) {
+        return valor;
+    }
+    return data.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+}
+
 async function carregarEntregas() {
     const container = document.getElementById('lista-entregas');
     if (!container) return;
@@ -138,10 +154,222 @@ async function carregarEntregas() {
     }
 }
 
+async function carregarAgricultores() {
+    const container = document.getElementById('lista-agricultores');
+    if (!container) return;
+
+    container.innerHTML = '<div class="table-row"><div colspan="4">Carregando agricultores...</div></div>';
+
+    try {
+        const resposta = await fetch('http://localhost:8080/api/agricultores');
+        if (!resposta.ok) throw new Error('Falha ao carregar agricultores');
+
+        const agricultores = await resposta.json();
+        if (!agricultores.length) {
+            container.innerHTML = '<div class="table-row"><div colspan="4">Nenhum agricultor cadastrado ainda.</div></div>';
+            return;
+        }
+
+        container.innerHTML = '';
+        agricultores.forEach((agricultor) => {
+            const dataNascimento = formatarDataSimples(agricultor.dataNascimento);
+            const ultimoRecebimento = formatarDataSimples(agricultor.ultimoRecebimento);
+            const dataExibicao = dataNascimento || ultimoRecebimento || '-';
+
+            const row = document.createElement('div');
+            row.className = 'table-row';
+            row.innerHTML = `
+                <div>${escapeHtml(agricultor.nome || '-')}</div>
+                <div>${escapeHtml(agricultor.municipio || '-')}</div>
+                <div>${escapeHtml(dataExibicao)}</div>
+                <div class="acoes">
+                    <a href="#" class="action-link">Ver histórico</a>
+                    <button type="button" class="btn-edit">✏️ Editar</button>
+                </div>
+            `;
+
+            const link = row.querySelector('.action-link');
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                alert('Tela de histórico do agricultor em construção!');
+            });
+
+            const btnEditar = row.querySelector('.btn-edit');
+            btnEditar.addEventListener('click', () => {
+                if (!agricultor.id) return;
+                window.location.href = `cadastrar-agricultor.html?id=${encodeURIComponent(agricultor.id)}`;
+            });
+
+            container.appendChild(row);
+        });
+    } catch (erro) {
+        console.error('Erro ao carregar agricultores:', erro);
+        container.innerHTML = '<div class="table-row"><div colspan="4">Erro ao carregar agricultores.</div></div>';
+    }
+}
+
+async function carregarDashboardAgricultor() {
+    const container = document.getElementById('lista-lotes-agricultor');
+    if (!container) return;
+
+    const nomeAgricultor = localStorage.getItem(AGRICULTOR_NOME_KEY);
+    if (!nomeAgricultor) {
+        window.location.href = 'identificacao-agricultor.html';
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="lote-card skeleton">
+            <div class="lote-info">
+                <h3>Carregando lotes...</h3>
+                <span class="status aguardando">⏳ Aguarde</span>
+            </div>
+        </div>
+    `;
+
+    try {
+        const resposta = await fetch('http://localhost:8080/api/lotes');
+        if (!resposta.ok) throw new Error('Falha ao carregar lotes');
+
+        const lotes = await resposta.json();
+        const lotesFiltrados = (Array.isArray(lotes) ? lotes : []).filter((lote) => {
+            if (!lote || !lote.agricultor) return true;
+            return normalizarStatus(lote.agricultor) === normalizarStatus(nomeAgricultor);
+        });
+
+        if (!lotesFiltrados.length) {
+            container.innerHTML = `
+                <div class="lote-card vazio">
+                    <div class="lote-info">
+                        <h3>Nenhuma entrega encontrada</h3>
+                        <p>Volte mais tarde para acompanhar novos lotes cadastrados pelo IPA.</p>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = '';
+        lotesFiltrados.forEach((lote) => {
+            const statusTexto = obterStatusLote(lote);
+            const statusClasse = classeStatusLote(statusTexto);
+            const dataRegistro = formatarDataSimples(lote?.dataRegistro);
+            const quantidade = Number(lote?.quantidadeKg) || 0;
+
+            const card = document.createElement('div');
+            card.className = 'lote-card';
+            card.innerHTML = `
+                <div class="lote-info">
+                    <h3>${escapeHtml(lote?.sementeNome || 'Lote sem identificação')}</h3>
+                    <span class="status ${statusClasse}">${escapeHtml(statusTexto)}</span>
+                    <p class="lote-meta">Origem: ${escapeHtml(lote?.origem || 'Não informado')}</p>
+                    <p class="lote-meta">Registrado em ${escapeHtml(dataRegistro || '-')}</p>
+                    <p class="lote-meta">Quantidade: ${escapeHtml(formatoNumero.format(quantidade))} kg</p>
+                </div>
+                <div class="lote-action">
+                    <button class="button primary small" type="button">Acompanhar entrega</button>
+                </div>
+            `;
+
+            const botao = card.querySelector('button');
+            botao.addEventListener('click', () => {
+                if (!lote?.id) {
+                    alert('Não foi possível identificar o lote selecionado.');
+                    return;
+                }
+                window.location.href = `rastreamento-lote.html?id=${encodeURIComponent(lote.id)}`;
+            });
+
+            container.appendChild(card);
+        });
+    } catch (erro) {
+        console.error('Erro ao carregar lotes:', erro);
+        container.innerHTML = `
+            <div class="lote-card erro">
+                <div class="lote-info">
+                    <h3>Não foi possível carregar os lotes.</h3>
+                    <p>Tente novamente em alguns instantes.</p>
+                </div>
+            </div>
+        `;
+    }
+}
+
+function obterStatusLote(lote) {
+    const texto = (lote?.status || lote?.observacoes || '').trim();
+    return texto || 'Em andamento';
+}
+
+async function carregarDetalhesRastreamento() {
+    if (!window.location.pathname.endsWith('rastreamento-lote.html')) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    if (!id) {
+        alert('Selecione um lote para visualizar o rastreamento.');
+        window.location.href = 'dashboard-agricultor.html';
+        return;
+    }
+
+    const tituloEl = document.getElementById('nome-lote');
+    const detalhesEl = document.getElementById('detalhes-lote');
+    const previsaoEl = document.getElementById('previsao-entrega');
+    const timelineEl = document.getElementById('timeline-status');
+    const proxPassoEl = document.getElementById('proximo-passo');
+    const etapa1Titulo = document.getElementById('etapa-1-titulo');
+    const etapa1Descricao = document.getElementById('etapa-1-descricao');
+
+    try {
+        const resp = await fetch(`http://localhost:8080/api/lotes/${encodeURIComponent(id)}`);
+        if (!resp.ok) throw new Error('Lote não encontrado');
+        const lote = await resp.json();
+
+        if (tituloEl) tituloEl.textContent = lote?.sementeNome || `Lote #${id}`;
+
+        if (detalhesEl) {
+            const quantidade = formatoNumero.format(Number(lote?.quantidadeKg) || 0);
+            const origem = lote?.origem ? ` | Origem: ${lote.origem}` : '';
+            detalhesEl.textContent = `${quantidade} kg${origem}`;
+        }
+
+        if (previsaoEl) {
+            const dataRegistro = formatarDataSimples(lote?.dataRegistro);
+            previsaoEl.textContent = dataRegistro
+                ? `Registrado em ${dataRegistro}.`
+                : 'Sem previsão registrada para este lote.';
+        }
+
+        const statusTexto = obterStatusLote(lote);
+        const statusNormalizado = normalizarStatus(statusTexto);
+
+        if (statusNormalizado === 'aguardando envio') {
+            if (timelineEl) timelineEl.style.display = 'none';
+            if (proxPassoEl) {
+                proxPassoEl.textContent = 'Este lote ainda está aguardando separação. Você será avisado assim que o envio iniciar.';
+            }
+            if (etapa1Titulo) etapa1Titulo.textContent = 'Aguardando Envio';
+            if (etapa1Descricao) etapa1Descricao.textContent = 'O IPA ainda não iniciou o transporte deste lote.';
+        } else {
+            if (timelineEl) timelineEl.style.display = '';
+            if (etapa1Titulo) etapa1Titulo.textContent = statusTexto;
+            if (etapa1Descricao) etapa1Descricao.textContent = 'O lote está em trânsito para o seu município.';
+            if (proxPassoEl) {
+                proxPassoEl.textContent = 'Continue acompanhando o progresso do transporte.';
+            }
+        }
+    } catch (erro) {
+        console.error('Erro ao carregar detalhes do lote:', erro);
+        alert('Não foi possível carregar o rastreamento. Tente novamente.');
+        window.location.href = 'dashboard-agricultor.html';
+    }
+}
+
 // Garante que o script só rode depois que o HTML carregar
 document.addEventListener("DOMContentLoaded", () => {
 
     atualizarSaudacaoAgricultor();
+    carregarDashboardAgricultor();
+    carregarDetalhesRastreamento();
 
     // --- LÓGICA DA TELA: index.html ---
     
@@ -233,7 +461,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- LÓGICA DA TELA: dashboard-agricultor.html ---
 
     const btnSair = document.getElementById("btnSair");
-    const dashboardButtons = document.querySelectorAll(".lote-list .button.small");
 
     // Botão Sair do Header
     if (btnSair) {
@@ -242,38 +469,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Botão Sair clicado. Voltando para home...");
             limparNomeAgricultor();
             window.location.href = "index.html";
-        });
-    }
-
-    // Botões dos Cards (Rastrear / Comprovante)
-    if (dashboardButtons.length > 0) {
-        dashboardButtons.forEach(button => {
-            
-            // Lógica para Rastrear
-            if (button.textContent.includes("Rastrear")) {
-                
-                const card = button.closest('.lote-card');
-                const cardTitle = card.querySelector('h3').textContent;
-
-                if (cardTitle.includes("Milho")) {
-                    button.addEventListener("click", () => {
-                        console.log("Botão Rastrear (Milho) clicado.");
-                        window.location.href = "rastreamento-lote.html";
-                    });
-                } else if (cardTitle.includes("Sorgo")) {
-                    button.addEventListener("click", () => {
-                        console.log("Botão Rastrear (Sorgo) clicado.");
-                        window.location.href = "rastreamento-sorgo.html";
-                    });
-                }
-            } 
-            // Lógica para Comprovante
-            else if (button.textContent.includes("Comprovante")) {
-                button.addEventListener("click", () => {
-                    console.log("Botão Comprovante clicado. Redirecionando...");
-                    window.location.href = "comprovante.html";
-                });
-            }
         });
     }
 
@@ -376,6 +571,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Carrega listas dinâmicas (se os elementos existirem)
     carregarSementes();
     carregarEntregas();
+    carregarAgricultores();
 
     // Filtro de busca para dashboard-ipa
     const search = document.getElementById('search-sementes');
@@ -544,7 +740,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- LÓGICA DA TELA: agricultores-ipa.html ---
     
     const btnCadastrarProdutor = document.getElementById("btnCadastrarProdutor");
-    const btnsVerHistorico = document.querySelectorAll(".entregas-table .action-link");
 
     if (btnCadastrarProdutor) {
         btnCadastrarProdutor.addEventListener("click", () => {
@@ -553,22 +748,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    if (btnsVerHistorico.length > 0) {
-        btnsVerHistorico.forEach(link => {
-            link.addEventListener("click", (event) => {
-                event.preventDefault();
-                console.log("Botão Ver Histórico clicado.");
-                alert("Tela de Histórico do Agricultor em construção!");
-            });
-        });
-    }
     
 
     // --- LÓGICA DA TELA: cadastrar-agricultor.html ---
     
+    inicializarFormularioAgricultor();
+
     const btnVoltarAgricultores = document.getElementById("btnVoltarAgricultores");
     const btnCancelarCadastro = document.getElementById("btnCancelarCadastro");
-    const btnSalvarCadastro = document.getElementById("btnSalvarCadastro");
 
     if (btnVoltarAgricultores) {
         btnVoltarAgricultores.addEventListener("click", (event) => {
@@ -585,23 +772,33 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    if (btnSalvarCadastro) {
-        btnSalvarCadastro.addEventListener("click", () => {
-            console.log("Botão Salvar (Cadastro) clicado.");
-            alert("Novo agricultor cadastrado com sucesso! (Simulação)");
-            window.location.href = "agricultores-ipa.html";
-        });
-    }
-
 
     // --- LÓGICA DA TELA: relatorios-ipa.html ---
     
     const btnGerarRelatorio = document.getElementById("btnGerarRelatorio");
 
     if (btnGerarRelatorio) {
-        btnGerarRelatorio.addEventListener("click", () => {
-            console.log("Botão Gerar Relatório clicado.");
-            alert("Gerando seu relatório! (Simulação)");
+        btnGerarRelatorio.addEventListener("click", async () => {
+            const tipo = document.getElementById("tipo-relatorio")?.value;
+            const inicio = document.getElementById("data-inicio")?.value.trim();
+            const fim = document.getElementById("data-fim")?.value.trim();
+
+            if (!tipo || !inicio || !fim) {
+                alert("Preencha o tipo e o período do relatório antes de continuar.");
+                return;
+            }
+
+            try {
+                const params = new URLSearchParams({ tipo, inicio, fim });
+                const resposta = await fetch(`http://localhost:8080/api/relatorios?${params.toString()}`);
+                if (!resposta.ok) throw new Error('Falha ao gerar relatório');
+
+                const data = await resposta.json();
+                alert(data.mensagem || 'Relatório gerado com sucesso!');
+            } catch (erro) {
+                console.error('Erro ao gerar relatório:', erro);
+                alert('Não foi possível gerar o relatório. Tente novamente.');
+            }
         });
     }
 
@@ -711,4 +908,192 @@ function converterDataNascimentoParaISO(valor) {
     const diaStr = String(dia).padStart(2, '0');
     const mesStr = String(mes).padStart(2, '0');
     return `${ano}-${mesStr}-${diaStr}`;
+}
+
+function formatarDataParaInput(valor) {
+    if (!valor) return '';
+    const data = new Date(valor);
+    if (Number.isNaN(data.getTime())) return '';
+    return data.toISOString().split('T')[0];
+}
+
+function definirValorSelectMunicipio(valor) {
+    const select = document.getElementById('municipio');
+    if (!select) return;
+
+    if (!valor) {
+        select.value = '';
+        return;
+    }
+
+    const normalizado = normalizarStatus(valor);
+    const opcoes = Array.from(select.options);
+    const existente = opcoes.find((opt) => {
+        const valorNormalizado = normalizarStatus(opt.value || opt.textContent || '');
+        return valorNormalizado === normalizado;
+    });
+
+    if (existente) {
+        select.value = existente.value;
+        return;
+    }
+
+    const novaOpcao = document.createElement('option');
+    novaOpcao.value = valor;
+    novaOpcao.textContent = valor;
+    novaOpcao.dataset.custom = 'true';
+    select.appendChild(novaOpcao);
+    select.value = valor;
+}
+
+function preencherFormularioAgricultor(agricultor) {
+    if (!agricultor) return;
+
+    const nomeInput = document.getElementById('nome');
+    const cpfInput = document.getElementById('cpf');
+    const telefoneInput = document.getElementById('telefone');
+    const dataInput = document.getElementById('data-nascimento');
+
+    if (nomeInput) nomeInput.value = agricultor.nome || '';
+    if (cpfInput) cpfInput.value = agricultor.cpf || '';
+    if (telefoneInput) telefoneInput.value = agricultor.telefone || '';
+    if (dataInput) dataInput.value = formatarDataParaInput(agricultor.dataNascimento);
+    definirValorSelectMunicipio(agricultor.municipio || '');
+
+    const botaoSalvar = document.getElementById('btnSalvarCadastro');
+    if (botaoSalvar) {
+        botaoSalvar.dataset.ultimoRecebimento = agricultor.ultimoRecebimento || '';
+    }
+}
+
+function atualizarElementosFormularioAgricultor(emEdicao) {
+    const titulo = document.getElementById('titulo-form-agricultor');
+    if (titulo) {
+        titulo.textContent = emEdicao ? 'Editar Agricultor' : 'Cadastrar Agricultor';
+    }
+
+    const subtitulo = document.getElementById('subtitulo-form-agricultor');
+    if (subtitulo) {
+        subtitulo.textContent = emEdicao
+            ? 'Atualize as informações do produtor selecionado.'
+            : 'Preencha os dados abaixo para cadastrar um novo produtor.';
+    }
+
+    const botao = document.getElementById('btnSalvarCadastro');
+    if (botao) {
+        botao.textContent = emEdicao ? 'Atualizar' : 'Salvar';
+        if (!emEdicao) {
+            botao.dataset.ultimoRecebimento = '';
+        }
+    }
+}
+
+async function carregarAgricultorPorId(id) {
+    if (!id) return;
+
+    const botao = document.getElementById('btnSalvarCadastro');
+    const textoOriginal = botao ? botao.textContent : '';
+    if (botao) {
+        botao.disabled = true;
+        botao.textContent = 'Carregando...';
+    }
+
+    try {
+        const resposta = await fetch(`http://localhost:8080/api/agricultores/${encodeURIComponent(id)}`);
+        if (!resposta.ok) throw new Error('Agricultor não encontrado');
+
+        const agricultor = await resposta.json();
+        preencherFormularioAgricultor(agricultor);
+    } catch (erro) {
+        console.error('Erro ao carregar agricultor:', erro);
+        alert('Não foi possível carregar o agricultor selecionado.');
+        window.location.href = 'agricultores-ipa.html';
+    } finally {
+        if (botao) {
+            botao.disabled = false;
+            botao.textContent = textoOriginal || 'Atualizar';
+        }
+    }
+}
+
+function coletarDadosFormularioAgricultor(ultimoRecebimento, agricultorId) {
+    const nome = document.getElementById('nome')?.value.trim() || '';
+    const cpf = document.getElementById('cpf')?.value.trim() || '';
+    const telefone = document.getElementById('telefone')?.value.trim() || '';
+    const municipio = document.getElementById('municipio')?.value || '';
+    const dataNascimento = document.getElementById('data-nascimento')?.value || '';
+
+    if (!nome || !cpf || !telefone || !municipio || !dataNascimento) {
+        alert('Preencha todos os campos para salvar o agricultor.');
+        return null;
+    }
+
+    const payload = {
+        nome,
+        cpf,
+        telefone,
+        municipio,
+        dataNascimento,
+        ultimoRecebimento: ultimoRecebimento || null
+    };
+
+    if (agricultorId) {
+        payload.id = Number(agricultorId);
+    }
+
+    return payload;
+}
+
+function configurarEnvioAgricultor(agricultorId) {
+    const botao = document.getElementById('btnSalvarCadastro');
+    if (!botao) return;
+
+    botao.onclick = async (event) => {
+        event.preventDefault();
+
+        const ultimoRecebimento = botao.dataset.ultimoRecebimento || null;
+        const payload = coletarDadosFormularioAgricultor(ultimoRecebimento, agricultorId);
+        if (!payload) return;
+
+        botao.disabled = true;
+        botao.textContent = agricultorId ? 'Atualizando...' : 'Salvando...';
+
+        try {
+            const baseUrl = 'http://localhost:8080/api/agricultores';
+            const resposta = await fetch(
+                agricultorId ? `${baseUrl}/${encodeURIComponent(agricultorId)}` : baseUrl,
+                {
+                    method: agricultorId ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }
+            );
+
+            if (!resposta.ok) throw new Error('Falha ao salvar agricultor');
+
+            alert(agricultorId ? 'Agricultor atualizado com sucesso!' : 'Agricultor cadastrado com sucesso!');
+            window.location.href = 'agricultores-ipa.html';
+        } catch (erro) {
+            console.error('Erro ao salvar agricultor:', erro);
+            alert('Não foi possível salvar o agricultor. Tente novamente.');
+        } finally {
+            botao.disabled = false;
+            botao.textContent = agricultorId ? 'Atualizar' : 'Salvar';
+        }
+    };
+}
+
+function inicializarFormularioAgricultor() {
+    if (!window.location.pathname.endsWith('cadastrar-agricultor.html')) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    const emEdicao = Boolean(id);
+
+    atualizarElementosFormularioAgricultor(emEdicao);
+    configurarEnvioAgricultor(id);
+
+    if (emEdicao) {
+        carregarAgricultorPorId(id);
+    }
 }

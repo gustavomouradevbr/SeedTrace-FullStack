@@ -119,6 +119,29 @@ a.button {
     color: #a00000;
 }
 
+.acoes {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.btn-edit {
+    border: 1px solid #93c5fd;
+    border-radius: 999px;
+    background-color: #eff6ff;
+    color: #1d4ed8;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 4px 10px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-edit:hover {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
 /* Botão Cinza - Secundário */
 .button.secondary {
     background-color: #6b7280; /* Cinza escuro, como na imagem */
@@ -1440,7 +1463,31 @@ hr.comprovante-divider {
 
 /* Modificador para o layout do formulário */
 .form-cadastro-simples {
-    max-width: 700px; /* Um pouco mais estreito */
+    max-width: 760px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.page-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-subtitle {
+    font-size: 0.95rem;
+    color: #4b5563;
+    margin: 0;
+}
+
+.form-grid-simples {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px 32px;
+}
+
+.form-group-simples.full-row {
+    grid-column: 1 / -1;
 }
 
 /* Grupo de formulário simples (título + input) */
@@ -1458,6 +1505,7 @@ hr.comprovante-divider {
   que já criamos para .form-group-ipa
 */
 .form-group-simples input[type="text"],
+.form-group-simples input[type="date"],
 .form-group-simples select {
     font-family: 'Inter', Arial, sans-serif;
     font-size: 1rem;
@@ -1475,6 +1523,7 @@ hr.comprovante-divider {
     color: #9ca3af;
 }
 .form-group-simples input[type="text"]:focus,
+.form-group-simples input[type="date"]:focus,
 .form-group-simples select:focus {
     outline: none;
     border-color: #34d399;
@@ -1489,4 +1538,24 @@ hr.comprovante-divider {
     background-repeat: no-repeat;
     background-position: right 16px center;
     background-size: 1em;
+}
+
+@media (max-width: 768px) {
+    .page-heading h1 {
+        font-size: 1.75rem;
+    }
+
+    .form-grid-simples {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .form-actions .button {
+        width: 100%;
+        justify-content: center;
+    }
 }

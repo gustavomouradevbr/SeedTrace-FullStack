@@ -15,16 +15,18 @@ public class Lote {
     private LocalDate dataRegistro;
     private String origem;
     private String agricultor;
+    private String status;
     private String observacoes;
 
     public Lote() {}
 
-    public Lote(String sementeNome, Double quantidadeKg, LocalDate dataRegistro, String origem, String agricultor, String observacoes) {
+    public Lote(String sementeNome, Double quantidadeKg, LocalDate dataRegistro, String origem, String agricultor, String status, String observacoes) {
         this.sementeNome = sementeNome;
         this.quantidadeKg = quantidadeKg;
         this.dataRegistro = dataRegistro;
         this.origem = origem;
         this.agricultor = agricultor;
+        this.status = status;
         this.observacoes = observacoes;
     }
 
@@ -40,6 +42,8 @@ public class Lote {
     public void setOrigem(String origem) { this.origem = origem; }
     public String getAgricultor() { return agricultor; }
     public void setAgricultor(String agricultor) { this.agricultor = agricultor; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
     public String getObservacoes() { return observacoes; }
     public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
 }

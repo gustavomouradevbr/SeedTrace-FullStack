@@ -19,8 +19,24 @@ public class SementeController {
     @PostMapping
     public Semente criar(@RequestBody Semente semente) { return repo.save(semente); }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Semente> atualizar(@PathVariable Long id, @RequestBody Semente dados) {
+        return repo.findById(id)
+                .map(existente -> {
+                    existente.setNome(dados.getNome());
+                    existente.setQuantidadeKg(dados.getQuantidadeKg());
+                    existente.setStatus(dados.getStatus());
+                    existente.setNumeroLotes(dados.getNumeroLotes());
+                    return ResponseEntity.ok(repo.save(existente));
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        if (!repo.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
         repo.deleteById(id);
         return ResponseEntity.noContent().build();
     }

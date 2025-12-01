@@ -13,11 +13,10 @@ public class Agricultor {
     private String nome;
     private String municipio;
     private LocalDate ultimoRecebimento;
+    private String telefone;
     @Column(name = "data_nascimento", nullable = false)
-
     private LocalDate dataNascimento;
     @Column(nullable = false, unique = true)
-
     private String cpf;
 
     public Agricultor() {}
@@ -38,6 +37,8 @@ public class Agricultor {
     public void setMunicipio(String municipio) { this.municipio = municipio; }
     public LocalDate getUltimoRecebimento() { return ultimoRecebimento; }
     public void setUltimoRecebimento(LocalDate ultimoRecebimento) { this.ultimoRecebimento = ultimoRecebimento; }
+    public String getTelefone() { return telefone; }
+    public void setTelefone(String telefone) { this.telefone = telefone; }
     public String getCpf() { return cpf; }
     public void setCpf(String cpf) { this.cpf = cpf; }
     public LocalDate getDataNascimento() { return dataNascimento; }

@@ -69,6 +69,7 @@ public class AgricultorController {
         a.setNome(atualizacao.getNome());
         a.setMunicipio(atualizacao.getMunicipio());
         a.setUltimoRecebimento(atualizacao.getUltimoRecebimento());
+        a.setTelefone(atualizacao.getTelefone());
         a.setCpf(atualizacao.getCpf());
         a.setDataNascimento(atualizacao.getDataNascimento());
 

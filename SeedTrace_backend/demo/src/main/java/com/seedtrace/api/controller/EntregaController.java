@@ -28,6 +28,22 @@ public class EntregaController {
                 .body(criada);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Entrega> atualizar(@PathVariable Long id, @RequestBody Entrega dados) {
+        return repo.findById(id)
+                .map(existente -> {
+                    existente.setMunicipio(dados.getMunicipio());
+                    existente.setAgricultor(dados.getAgricultor());
+                    existente.setLoteSemente(dados.getLoteSemente());
+                    existente.setQuantidadeKg(dados.getQuantidadeKg());
+                    existente.setDataPrevisao(dados.getDataPrevisao());
+                    existente.setTecnicoResponsavel(dados.getTecnicoResponsavel());
+                    existente.setStatus(dados.getStatus());
+                    return ResponseEntity.ok(repo.save(existente));
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         if (!repo.existsById(id)) {

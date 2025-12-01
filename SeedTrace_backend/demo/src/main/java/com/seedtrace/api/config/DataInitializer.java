@@ -48,55 +48,125 @@ public class DataInitializer implements CommandLineRunner {
         if (entregaRepo.count() == 0) {
             entregaRepo.save(new Entrega(
                 "Garanhuns",
-                "José Almeida",
-                "Lote Milho 2025-01",
+                "João Ribeiro",
+                "Milho Híbrido",
                 120.0,
-                LocalDate.now().plusDays(5),
+                LocalDate.now().plusDays(4),
                 "Téc. Helena",
                 "Em Transporte"));
 
             entregaRepo.save(new Entrega(
                 "Arcoverde",
-                "Ana Ferreira",
-                "Lote Sorgo 2025-03",
-                80.0,
+                "Maria Souza",
+                "Feijão Carioca",
+                95.0,
                 LocalDate.now().minusDays(1),
+                "Téc. Marcos",
+                "Entregue"));
+
+            entregaRepo.save(new Entrega(
+                "Garanhuns",
+                "José Almeida",
+                "Sorgo Forrageiro",
+                110.0,
+                LocalDate.now().plusDays(10),
+                "Téc. Roberta",
+                "Planejada"));
+
+            entregaRepo.save(new Entrega(
+                "Arcoverde",
+                "Ana Ferreira",
+                "Milho Híbrido",
+                85.0,
+                LocalDate.now().minusDays(3),
                 "Téc. Marcos",
                 "Entregue"));
 
             entregaRepo.save(new Entrega(
                 "Petrolina",
                 "Carlos Lima",
-                "Lote Feijão 2025-02",
+                "Feijão Carioca",
                 150.0,
                 LocalDate.now().plusDays(12),
                 "Téc. Roberta",
                 "Planejada"));
         }
 
-        if (agricultorRepo.count() == 0) {
-            agricultorRepo.save(new Agricultor(
-                "João Ribeiro",
-                "Santa Maria",
-                LocalDate.now().minusDays(30),
-                "111.111.111-11",
-                LocalDate.of(1985, 3, 14)));
+        garantirAgricultor(
+            "João Ribeiro",
+            "Santa Maria",
+            LocalDate.now().minusDays(30),
+            "(87) 98888-1111",
+            "111.111.111-11",
+            LocalDate.of(1985, 3, 14));
 
-            agricultorRepo.save(new Agricultor(
-                "Maria Souza",
-                "São Pedro",
-                LocalDate.now().minusDays(15),
-                "222.222.222-22",
-                LocalDate.of(1990, 11, 2)));
-        }
+        garantirAgricultor(
+            "Maria Souza",
+            "São Pedro",
+            LocalDate.now().minusDays(15),
+            "(87) 97777-2222",
+            "222.222.222-22",
+            LocalDate.of(1990, 11, 2));
+
+        garantirAgricultor(
+            "José Almeida",
+            "Garanhuns",
+            LocalDate.now().minusDays(20),
+            "(87) 96666-3333",
+            "333.333.333-33",
+            LocalDate.of(1982, 6, 5));
+
+        garantirAgricultor(
+            "Ana Ferreira",
+            "Arcoverde",
+            LocalDate.now().minusDays(10),
+            "(87) 95555-4444",
+            "444.444.444-44",
+            LocalDate.of(1993, 1, 22));
+
+        garantirAgricultor(
+            "Carlos Lima",
+            "Petrolina",
+            LocalDate.now().minusDays(5),
+            "(87) 94444-5555",
+            "555.555.555-55",
+            LocalDate.of(1988, 9, 18));
 
         if (loteRepo.count() == 0) {
-            loteRepo.save(new Lote("Milho Híbrido AG 1051", 200.0, LocalDate.now().minusDays(10), "Fazenda Santa Clara", "João Ribeiro", "Semente de alta pureza"));
-            loteRepo.save(new Lote("Sorgo Forrageiro X2", 150.0, LocalDate.now().minusDays(5), "Fazenda Verde", "Maria Souza", "Para forragem"));
+            loteRepo.save(new Lote(
+                "Milho Híbrido AG 1051",
+                200.0,
+                LocalDate.now().minusDays(10),
+                "Fazenda Santa Clara",
+                "João Ribeiro",
+                "Em Transporte",
+                "Semente de alta pureza"));
+
+            loteRepo.save(new Lote(
+                "Sorgo Forrageiro X2",
+                150.0,
+                LocalDate.now().minusDays(5),
+                "Fazenda Verde",
+                "Maria Souza",
+                "Aguardando Envio",
+                "Para forragem"));
         }
 
         if (funcionarioRepo.count() == 0) {
             funcionarioRepo.save(new Funcionario("000.000.000-01", "123456", "Admin IPA"));
         }
+    }
+
+    private void garantirAgricultor(String nome,
+                                    String municipio,
+                                    LocalDate ultimoRecebimento,
+                                    String telefone,
+                                    String cpf,
+                                    LocalDate dataNascimento) {
+        agricultorRepo.findByCpf(cpf).orElseGet(() -> {
+            Agricultor agricultor = new Agricultor(nome, municipio, ultimoRecebimento, cpf, dataNascimento);
+            agricultor.setTelefone(telefone);
+            return agricultorRepo.save(agricultor);
+        });
     }
 }
