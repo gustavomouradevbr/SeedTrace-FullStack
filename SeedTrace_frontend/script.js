@@ -77,6 +77,67 @@ async function carregarSementes() {
     }
 }
 
+function formatarDataPrevisao(valor) {
+    if (!valor) return '-';
+    const data = new Date(valor);
+    if (Number.isNaN(data.getTime())) {
+        return valor;
+    }
+    return data.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+}
+
+function classeStatusEntrega(status = '') {
+    const texto = status.trim().toLowerCase();
+    if (texto === 'em transporte') return 'transporte';
+    if (texto === 'entregue') return 'entregue';
+    return 'planejada';
+}
+
+async function carregarEntregas() {
+    const container = document.getElementById('lista-entregas');
+    if (!container) return;
+
+    container.innerHTML = '<div class="table-row"><div colspan="4">Carregando entregas...</div></div>';
+
+    try {
+        const resposta = await fetch('http://localhost:8080/api/entregas');
+        if (!resposta.ok) throw new Error('Falha ao carregar entregas');
+
+        const entregas = await resposta.json();
+        if (!entregas.length) {
+            container.innerHTML = '<div class="table-row"><div colspan="4">Nenhuma entrega cadastrada ainda.</div></div>';
+            return;
+        }
+
+        container.innerHTML = '';
+        entregas.forEach((entrega) => {
+            const statusClass = classeStatusEntrega(entrega.status || '');
+            const destino = entrega.agricultor
+                ? `${escapeHtml(entrega.municipio || '-') }<br><small>${escapeHtml(entrega.agricultor)}</small>`
+                : escapeHtml(entrega.municipio || '-');
+            const row = document.createElement('div');
+            row.className = 'table-row';
+            row.innerHTML = `
+                <div>${destino}</div>
+                <div>${formatarDataPrevisao(entrega.dataPrevisao)}</div>
+                <div><span class="status-text ${statusClass}">${escapeHtml(entrega.status || '-')}</span></div>
+                <div><a href="#" class="action-link">Ver detalhes</a></div>
+            `;
+
+            const detalheLink = row.querySelector('.action-link');
+            detalheLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                alert('Em breve você poderá acompanhar o detalhamento desta entrega.');
+            });
+
+            container.appendChild(row);
+        });
+    } catch (erro) {
+        console.error('Erro ao carregar entregas:', erro);
+        container.innerHTML = '<div class="table-row"><div colspan="4">Erro ao carregar entregas.</div></div>';
+    }
+}
+
 // Garante que o script só rode depois que o HTML carregar
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -312,8 +373,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Carrega a lista de sementes dinamicamente (se estiver na tela)
+    // Carrega listas dinâmicas (se os elementos existirem)
     carregarSementes();
+    carregarEntregas();
 
     // Filtro de busca para dashboard-ipa
     const search = document.getElementById('search-sementes');
@@ -401,22 +463,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- LÓGICA DA TELA: entregas-ipa.html ---
     
     const btnPlanejarEntrega = document.getElementById("btnPlanejarEntrega");
-    const btnsVerDetalhesEntrega = document.querySelectorAll(".entregas-table .action-link");
 
     if (btnPlanejarEntrega) {
         btnPlanejarEntrega.addEventListener("click", () => {
             console.log("Botão Planejar Nova Entrega clicado.");
             window.location.href = "planejar-entrega.html";
-        });
-    }
-
-    if (btnsVerDetalhesEntrega.length > 0) {
-        btnsVerDetalhesEntrega.forEach(link => {
-            link.addEventListener("click", (event) => {
-                event.preventDefault();
-                console.log("Botão Ver Detalhes (Entrega) clicado.");
-                alert("Tela de Detalhes da Entrega em construção!");
-            });
         });
     }
 
@@ -443,10 +494,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (btnSalvarPlanejamento) {
-        btnSalvarPlanejamento.addEventListener("click", () => {
-            console.log("Botão Salvar (Planejamento) clicado.");
-            alert("Nova entrega planejada com sucesso! (Simulação)");
-            window.location.href = "entregas-ipa.html";
+        btnSalvarPlanejamento.addEventListener("click", async (event) => {
+            event.preventDefault();
+
+            const municipio = document.getElementById("municipio")?.value.trim();
+            const agricultor = document.getElementById("agricultor")?.value.trim();
+            const lote = document.getElementById("lote")?.value.trim();
+            const quantidadeTexto = document.getElementById("quantidade")?.value.trim();
+            const dataPrevisaoTexto = document.getElementById("data-previsao")?.value.trim();
+            const tecnico = document.getElementById("tecnico")?.value.trim();
+
+            const quantidadeKg = quantidadeTexto ? parseFloat(quantidadeTexto.replace(',', '.')) : NaN;
+            const dataISO = dataPrevisaoTexto ? converterDataNascimentoParaISO(dataPrevisaoTexto) : null;
+
+            if (!municipio || !agricultor || !lote || Number.isNaN(quantidadeKg) || !dataISO || !tecnico) {
+                alert("Preencha todos os campos corretamente para salvar a entrega.");
+                return;
+            }
+
+            const payload = {
+                municipio,
+                agricultor,
+                loteSemente: lote,
+                quantidadeKg,
+                dataPrevisao: dataISO,
+                tecnicoResponsavel: tecnico,
+                status: "Planejada"
+            };
+
+            try {
+                const resposta = await fetch('http://localhost:8080/api/entregas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!resposta.ok) throw new Error('Falha ao salvar entrega');
+
+                alert('Entrega planejada com sucesso!');
+                window.location.href = 'entregas-ipa.html';
+            } catch (erro) {
+                console.error('Erro ao salvar entrega:', erro);
+                alert('Não foi possível salvar a entrega. Tente novamente.');
+            }
         });
     }
 

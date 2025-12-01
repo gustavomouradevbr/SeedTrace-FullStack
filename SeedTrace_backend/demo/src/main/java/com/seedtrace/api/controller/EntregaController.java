@@ -1,7 +1,12 @@
 package com.seedtrace.api.controller;
 
-import org.springframework.web.bind.annotation.*;
+import java.net.URI;
 import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import com.seedtrace.api.model.Entrega;
 import com.seedtrace.api.repository.EntregaRepository;
 
@@ -16,5 +21,19 @@ public class EntregaController {
     public List<Entrega> listar() { return repo.findAll(); }
 
     @PostMapping
-    public Entrega criar(@RequestBody Entrega entrega) { return repo.save(entrega); }
+    public ResponseEntity<Entrega> criar(@RequestBody Entrega entrega) {
+        Entrega criada = repo.save(entrega);
+        return ResponseEntity
+                .created(URI.create("/api/entregas/" + criada.getId()))
+                .body(criada);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        if (!repo.existsById(id)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        repo.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

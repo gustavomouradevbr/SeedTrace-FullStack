@@ -46,8 +46,32 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         if (entregaRepo.count() == 0) {
-            entregaRepo.save(new Entrega("Cooperativa Central", LocalDate.now().plusDays(7), "Pendente"));
-            entregaRepo.save(new Entrega("Armazém Regional", LocalDate.now().plusDays(2), "Em trânsito"));
+            entregaRepo.save(new Entrega(
+                "Garanhuns",
+                "José Almeida",
+                "Lote Milho 2025-01",
+                120.0,
+                LocalDate.now().plusDays(5),
+                "Téc. Helena",
+                "Em Transporte"));
+
+            entregaRepo.save(new Entrega(
+                "Arcoverde",
+                "Ana Ferreira",
+                "Lote Sorgo 2025-03",
+                80.0,
+                LocalDate.now().minusDays(1),
+                "Téc. Marcos",
+                "Entregue"));
+
+            entregaRepo.save(new Entrega(
+                "Petrolina",
+                "Carlos Lima",
+                "Lote Feijão 2025-02",
+                150.0,
+                LocalDate.now().plusDays(12),
+                "Téc. Roberta",
+                "Planejada"));
         }
 
         if (agricultorRepo.count() == 0) {
