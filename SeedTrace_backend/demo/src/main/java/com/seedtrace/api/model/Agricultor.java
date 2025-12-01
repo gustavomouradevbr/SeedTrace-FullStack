@@ -14,8 +14,10 @@ public class Agricultor {
     private String municipio;
     private LocalDate ultimoRecebimento;
     @Column(name = "data_nascimento", nullable = false)
+
     private LocalDate dataNascimento;
     @Column(nullable = false, unique = true)
+
     private String cpf;
 
     public Agricultor() {}
