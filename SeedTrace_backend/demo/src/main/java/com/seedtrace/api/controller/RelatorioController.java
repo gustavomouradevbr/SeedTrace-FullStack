@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*")  // Add this annotation to enable CORS for all origins
 @RestController
 @RequestMapping("/api/relatorios")
 public class RelatorioController {
